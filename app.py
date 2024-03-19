@@ -7,12 +7,11 @@ import altair as alt
 import pandas as pd
 from datetime import datetime
 
-
 with st.sidebar:
     selected = option_menu(
         menu_title= "Main Menu",
-        options= ["Authentication","Home","Dashboard"],
-        icons= ["door-open","house","speedometer"],
+        options= ["Home","Dashboard"],
+        icons= ["house","speedometer"],
         menu_icon= "Cast"
     )
 
@@ -50,8 +49,6 @@ def authenticate_user():
         return None
 
 auth_token = authenticate_user()
-
-
 if auth_token:
     api_headers_with_token = {"Authorization": f"Bearer {auth_token}","tenantid": "33c75f9f", "appinfo": "CUSTOMER"}
     API_ENDPOINT = "https://api.prac360.com/dashboard/slotreport"
@@ -79,12 +76,9 @@ def fetch_slots():
         "endDate": end_date,
         "slotView": True
     }
-
-    
     response = requests.post(API_ENDPOINT, headers=api_headers_with_token, json=payload)
     print(response)
 
-    
     if response.status_code == 201:
         data = response.json()
         for slot in data['data']['slots']:
@@ -99,33 +93,28 @@ def fetch_slots():
         st.error(f"API error: {response.status_code}")
 
     return None
-if selected == "Authentication":
-       st.title(f"you selected the {selected}")
 
 if selected == "Home":
         st.title(f"you selected the {selected}")
-        def main_Fun():
-         st.title("Slot Report Dashboard")
-
    
         slots = fetch_slots()       
         if slots:
            st.write("## Slot Booking Summary")
-           st.dataframe(slots)
-
-           df = pd.DataFrame(slots)
-           chart = alt.Chart(df).mark_bar().encode(
-                # x='date:N',
-                # y='slotId:Q',
+           st.dataframe(slots) 
+        else:
+             st.warning("No data available for selected dates.")
+         
+if selected == "Dashboard":
+          st.title(f"you selected the {selected}")
+          Chart = fetch_slots()       
+          if Chart:
+           df = pd.DataFrame(Chart)
+           charting = alt.Chart(df).mark_bar().encode(
                 x='date',
                 y='bookedAppointments:Q',
                 tooltip=['bookingPerSlot','bookedAppointments', 'slotId','date','listOfAppointmentId']
            ).interactive()
-           st.altair_chart(chart, use_container_width=True)
-        
-        else:
+           st.altair_chart(charting, use_container_width=True)
+          else:
              st.warning("No data available for selected dates.")
-        if __name__ == "__main__":
-          main_Fun()     
-if selected == "Dashboard":
-          st.title(f"you selected the {selected}")
+       

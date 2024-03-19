@@ -17,8 +17,8 @@ with st.sidebar:
     )
 
 def authenticate_user():
-    otp_url = "https://api-staging.agamworks.com/auth/otp/8870677228"
-    verify_url = "https://api-staging.agamworks.com/auth/verify"
+    otp_url = "https://api.prac360.com/auth/otp/8870677228"
+    verify_url = "https://api.prac360.com/auth/verify"
     API_HEADER = {"tenantid": "33c75f9f", "appinfo": "CUSTOMER"}
 
     response = requests.get(otp_url, headers=API_HEADER)
@@ -54,7 +54,7 @@ auth_token = authenticate_user()
 
 if auth_token:
     api_headers_with_token = {"Authorization": f"Bearer {auth_token}","tenantid": "33c75f9f", "appinfo": "CUSTOMER"}
-    API_ENDPOINT = "https://api-staging.agamworks.com/dashboard/slotreport"
+    API_ENDPOINT = "https://api.prac360.com/dashboard/slotreport"
 def fetch_slots():
     breatheasy='5f0a9c7f624afc79798e66d7'
     chestcare ='a8b466a5ddeeb379556f3024'

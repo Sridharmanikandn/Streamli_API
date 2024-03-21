@@ -78,19 +78,26 @@ def fetch_slots():
     }
     response = requests.post(API_ENDPOINT, headers=api_headers_with_token, json=payload)
     print(response)
+    
+
 
     if response.status_code == 201:
         data = response.json()
-        for slot in data['data']['slots']:
-         slot['date'] = datetime.strptime(slot['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
-         slots_data = data['data']['slots']
-         print(slots_data)
+        if data ["statusCode"] == 1037:
+        #    st.error('No data to show')
+            print("Status error")
+        else: 
+           for slot in data['data']['slots']:
+            slot['date'] = datetime.strptime(slot['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
+            slots_data = data['data']['slots']
+            print(slots_data)
         if data["statusCode"] == 1001:  
             return slots_data
         else:
-            st.error(f"API error: {data['msg']}")
+            # st.error(f"API erroring: {data['msg']}")
+            print("API error")
     else:
-        st.error(f"API error: {response.status_code}")
+        st.error(f"API errors: {response.status_code}")
 
     return None
 

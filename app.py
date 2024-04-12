@@ -52,16 +52,69 @@ auth_token = authenticate_user()
 if auth_token:
     api_headers_with_token = {"Authorization": f"Bearer {auth_token}","tenantid": "33c75f9f", "appinfo": "CUSTOMER"}
     API_ENDPOINT = "https://api.prac360.com/dashboard/slotreport"
-def fetch_slots(Slot_view):
-    breatheasy='5f0a9c7f624afc79798e66d7'
-    chestcare ='a8b466a5ddeeb379556f3024'
-    option = st.selectbox(
-        'selected the Clinics',
-        ("breatheasy", "chestcare"))
-    if option == "breatheasy":
-        value =breatheasy
-    if option == "chestcare":
-        value =chestcare    
+def fetch_slots(Slot_view): 
+    get_all_hospital = "https://api.prac360.com/v1/hospital"
+    response = requests.get(get_all_hospital,headers=api_headers_with_token)
+    hospital_info= []
+    if response.status_code == 200: 
+      print(response.json())
+      hospital_data =  response.json()
+      if hospital_data ["statusCode"] == 1001:
+          for hospital in hospital_data ["data"]:
+              hospital_id = hospital["_id"]
+              hospital_name = hospital["name"]
+              hospital_info.append({"hospital_id": hospital_id, "hospital_name": hospital_name})
+      else:
+        print("can't get the hospital name and ID's ")
+    else:
+        
+        print("Error:", response.status_code, response.text)
+    
+    hospital_name = [hospital["hospital_name"] for hospital in hospital_info]
+    selected_hospital = st.selectbox('Select a hospital:', hospital_name)
+    selected_hospital_id = None
+    for hospital in hospital_info:
+        if hospital["hospital_name"] == selected_hospital:
+         selected_hospital_id = hospital["hospital_id"]
+         break
+     
+
+    HOSPITAL_ENDPOINT = "https://api.prac360.com/v1/doctor/onhospital/"   
+    response = requests.get(HOSPITAL_ENDPOINT+selected_hospital_id, headers=api_headers_with_token)
+    doctor_info = []
+    if response.status_code == 200: 
+      print(response.json())
+      json_data =  response.json()
+      if json_data ["statusCode"] == 1001:
+            print('valid data')
+            for doctor in json_data["data"]["doctorIds"]:
+               doctor_id = doctor["_id"]
+               doctor_name = doctor["profileId"]["name"]
+               doctor_info.append({"doctor_id": doctor_id, "doctor_name": doctor_name})
+
+            output_filename = "doctor_info.json"
+            with open(output_filename, "w") as output_file:
+              json.dump(doctor_info, output_file, indent=4)
+            print("Doctor information has been saved to", output_filename) 
+            print(doctor_info)  
+      else:
+        print("can't get the doctors name and ID's ")
+    else:
+        
+        print("Error:", response.status_code, response.text)
+
+
+    doctor_names = [doctor["doctor_name"] for doctor in doctor_info]
+    selected_doctor = st.selectbox('Select a doctor:', doctor_names)
+    selected_doctor_id = None
+    for doctor in doctor_info:
+     if doctor["doctor_name"] == selected_doctor:
+         selected_doctor_id = doctor["doctor_id"]
+         HOSPITAL_ID_ = str(selected_doctor_id)
+         break
+   
+    
+    
     d = st.date_input("Start Date" )    
     print(d)
     d1 = st.date_input("End Date")
@@ -70,7 +123,7 @@ def fetch_slots(Slot_view):
     end_date = str(d1)
     
     payload = {
-        "doctorIds": [value],
+        "doctorIds": [HOSPITAL_ID_],
         "slotType": ["CUSTOMER"],
         "startDate":start_date,
         "endDate": end_date,

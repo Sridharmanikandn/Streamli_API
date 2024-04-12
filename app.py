@@ -6,6 +6,7 @@ import json
 import altair as alt  
 import pandas as pd
 from datetime import datetime
+import io
 
 with st.sidebar:
     selected = option_menu(
@@ -166,7 +167,7 @@ if selected == "Home":
                value=True
         elif option == "Yes":
                 value=False
-        result=slots = fetch_slots(Slot_view=value)
+        result= fetch_slots(Slot_view=value)
         if isinstance(result, tuple):
              booking_per_slot, booked_appointments = result
              print(result)
@@ -178,7 +179,18 @@ if selected == "Home":
              containerss.write(booked_appointments)    
         else:
            st.write("## Slot Booking Summary")
-           st.dataframe(slots) 
+           st.dataframe(result)
+           if option == "Not-now" :   
+             if isinstance(result, list) and len(result) > 0 and isinstance(result[0], dict):
+               df = pd.DataFrame(result)
+               excel_buffer = io.BytesIO()
+               df.to_excel(excel_buffer, index=False, header=True)
+               st.download_button( 
+                label="Download Excel",
+                data=excel_buffer.getvalue(),
+                file_name="slot_booking_summary.xlsx", 
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  
+            )
         
         
          

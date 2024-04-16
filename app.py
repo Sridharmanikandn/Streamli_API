@@ -128,7 +128,9 @@ def fetch_slots(Slot_view):
         "slotType": ["CUSTOMER"],
         "startDate":start_date,
         "endDate": end_date,
-        "slotView": Slot_view
+        "slotView": Slot_view,
+        "appointmentStatus":["BOOKED","RESCHEDULED","VISITED"]
+
     }
     response = requests.post(API_ENDPOINT, headers=api_headers_with_token, json=payload)
     print(response)

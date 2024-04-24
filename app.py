@@ -41,7 +41,7 @@ def authenticate_user():
     
     if verify_response.status_code == 201:
         json_object = verify_response.json()
-        token = json_object['data']['token']
+        token = json_object ['data']['token']
         print("Successfully Authentication")
         print(token)
         return token
